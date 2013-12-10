@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <!--[if IE]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!--<![endif]-->
+        <title><%= _.capitalize(projectName) %></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="assets/css/styles.css">
+        <% if (includeModernizr) { %>
+        <script src="assets/bower_components/modernizr/modernizr.js"></script>
+        <% } %>
+    </head>
+    <body>
+        <h1>You've started a new project called: <%= _.capitalize(projectName) %></h1>
+
+        <% if (includeRequireJS) { %>
+        <script data-main="assets/js/main" src="assets/bower_components/requirejs/require.js"></script>
+        <% } else { %>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="assets/bower_components/jquery/jquery.min.js"><\/script>')</script>
+        <script src="assets/js/app.js"></script>
+        <% } %>
+    </body>
+</html>
