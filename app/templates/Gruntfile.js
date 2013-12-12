@@ -6,11 +6,16 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		watch: {
 			css: {
-				files: [
+				files: [<% if (includeLESS) { %>
 					'app/assets/less/*.less',
-					'app/assets/less/site/*.less'
+					'app/assets/less/site/*.less'<% } if (includeSASS) { %>
+					'app/assets/sass/*.scss',
+					'app/assets/sass/site/*.scss'<% } %>
 				],
-				tasks: ['less:development'],
+				tasks: [<% if (includeLESS) { %>
+					'less:development'<% } if (includeSASS) { %>
+					'sass:development'<% } %>
+				],
 				options: {
 					livereload: true,
 				}
@@ -38,7 +43,7 @@ module.exports = function(grunt) {
 			options: {
 				watchTask: true
 			}
-		},
+		},<% if (includeLESS) { %>
 		less: {
 			development: {
 				options: {
@@ -57,7 +62,22 @@ module.exports = function(grunt) {
 					'dist/assets/css/styles.css': 'app/assets/less/styles.less'
 				}
 			}
-		},
+		},<% } if (includeSASS) { %>
+		sass: {
+			development: {
+				files: {
+					'app/assets/css/styles.css': 'app/assets/sass/styles.scss'
+				}
+			},
+			production: {
+				options: {
+					style: 'compressed'
+				},
+				files: {
+					'dist/assets/css/styles.css': 'app/assets/sass/styles.scss'
+				}
+			}
+		},<% } %>		
 		jshint: {
 			options: {
 				jshintrc: '.jshintrc'
@@ -107,9 +127,10 @@ module.exports = function(grunt) {
 			}
 		},
 	});
-
 	// Load the Grunt plugins.
-	grunt.loadNpmTasks('grunt-contrib-less');
+	<% if (includeLESS) { %>
+	grunt.loadNpmTasks('grunt-contrib-less');<% } if (includeSASS) { %>
+	grunt.loadNpmTasks('grunt-contrib-sass');<% } %>	
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-browser-sync');
@@ -117,10 +138,16 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 
 	// Register the default tasks.
-	grunt.registerTask('default', ['browser_sync', 'watch']);
+	grunt.registerTask('default', [
+		'browser_sync', 
+		'watch'
+	]);
 
 	// Register the build tasks.
-	grunt.registerTask('build', ['requirejs', 'less:production', 'copy:build']);
-
-
+	grunt.registerTask('build', [
+		'requirejs',<% if (includeLESS) { %>
+		'less:production',<% } if (includeSASS) { %>
+		'sass:production',<% } %>	
+		'copy:build'
+	]);
 };
