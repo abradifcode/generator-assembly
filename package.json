@@ -1,6 +1,6 @@
 {
   "name": "generator-assembly",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Yeoman generator to start a simple project.",
   "keywords": [
     "yeoman-generator"
