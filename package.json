@@ -1,9 +1,23 @@
 {
   "name": "generator-assembly",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A Yeoman generator to start a simple project. Options for LESS or SASS, Bootstrap or Foundation, RequireJS, Modernizr, Underscore, includes jQuery by default and hooks up dependencies based on selections. Starting Gruntfile that watches and builds your project.",
   "keywords": [
-    "yeoman-generator"
+    "yeoman-generator",
+    "LESS",
+    "SASS",
+    "SCSS",
+    "Bootstrap",
+    "Foundation",
+    "RequireJS",
+    "Modernizr",
+    "Underscore",
+    "jQuery",
+    "Grunt",
+    "Gruntfile",
+    "HTML5",
+    "CSS3",
+    "Boilerplate"
   ],
   "homepage": "https://github.com/mykepreuss/generator-assembly",
   "bugs": "https://github.com/mykepreuss/generator-assembly/issues",
