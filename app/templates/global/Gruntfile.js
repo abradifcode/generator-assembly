@@ -83,7 +83,7 @@ module.exports = function(grunt) {
 				jshintrc: '.jshintrc'
 			},
 			all: ['Gruntfile.js', 'app/assets/js/*.js']
-		},
+		},<% } if (includeRequireJS) { %>
 		requirejs: {
 			compile: {
 				options: {
@@ -105,7 +105,7 @@ module.exports = function(grunt) {
 					}
 				}
 			}
-		},
+		},<% } %>
 		copy: {
 			build: {
 				files: [{

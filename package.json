@@ -1,7 +1,7 @@
 {
   "name": "generator-assembly",
-  "version": "0.0.2",
-  "description": "A generator for Yeoman",
+  "version": "0.0.3",
+  "description": "A Yeoman generator to start a simple project.",
   "keywords": [
     "yeoman-generator"
   ],
@@ -21,7 +21,8 @@
     "test": "mocha"
   },
   "dependencies": {
-    "yeoman-generator": "~0.14.0"
+    "yeoman-generator": "~0.14.0",
+    "simple-git": "~0.4.0"
   },
   "peerDependencies": {
     "yo": ">=1.0.0"

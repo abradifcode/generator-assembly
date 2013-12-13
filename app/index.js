@@ -2,6 +2,7 @@
 var util = require('util');
 var path = require('path');
 var yeoman = require('yeoman-generator');
+var git = require('simple-git')();
 
 module.exports = AssemblyGenerator;
 
@@ -84,7 +85,16 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 					checked: true
 				}
 			]
-		}
+		},
+		{
+			name: 'bitBucketName',
+			message: 'What is the name of the BitBucket account?',
+			default: 'signals'
+		},
+		{
+			name: 'repoName',
+			message: 'What is the name of the BitBucket repo?'
+		}		
 	];
 
 	this.prompt(prompts, function (props) {
@@ -112,6 +122,9 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 		this.includeRequireJS = hasFeature('includeRequireJS');
 		this.includeModernizr = hasFeature('includeModernizr');
 		this.includeUnderscore = hasFeature('includeUnderscore');
+
+		this.bitBucketName = props.bitBucketName;
+		this.repoName = props.repoName;
 
 		cb();
 	}.bind(this));
@@ -178,4 +191,34 @@ AssemblyGenerator.prototype.projectfiles = function projectfiles() {
 	this.copy('global/jshintrc', '.jshintrc');
 	this.copy('global/bowerrc', '.bowerrc');
 	this.copy('global/gitignore', '.gitignore');
+};
+
+// Git setup
+AssemblyGenerator.prototype.initGit = function initGit() {
+	var cb = this.async();
+	var bitBucketAccount = this.bitBucketName;
+	var bitBucketRepo = this.repoName;
+
+	console.log('Initializing Git');
+
+	git.init(function(err) {
+		
+		if (err) console.log(err);
+		console.log('Git init complete');
+
+		git.add('--all', function(err) {
+
+			if (err) console.log(err);
+		
+		}).addRemote('origin', 'https://bitbucket.org/'+ bitBucketAccount +'/'+ bitBucketRepo +'.git')
+		.commit('Initial Commit', function(err, d) {
+
+			if (err) console.log(err);	
+			console.log('Git add and commit complete: ' + JSON.stringify(d, null, '  '));
+		
+		})
+		.push('origin', 'master');
+		
+		cb();
+	});
 };
