@@ -24,11 +24,19 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 	// have Yeoman greet the user.
 	console.log(this.yeoman);
 
+	// Validate required
+	var requiredValidate = function(value) {
+		if (value == '') {
+			return 'This field is required.';
+		}
+		return true;
+	};
+
 	var prompts = [
 		{
 			name: 'projectName',
 			message: 'What is the name of this project?',
-			default: this.projectName
+			validate: requiredValidate
 		}, 
 		{ 
 			type: 'list',
@@ -104,11 +112,13 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 		{
 			name: 'accountName',
 			message: 'What is the name of the account?',
-			default: 'signals'
+			default: 'signals',
+			validate: requiredValidate
 		},
 		{
 			name: 'repoName',
-			message: 'What is the name of the repo?'
+			message: 'What is the name of the repo?',
+			validate: requiredValidate
 		}		
 	];
 
