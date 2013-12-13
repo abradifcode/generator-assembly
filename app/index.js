@@ -85,15 +85,30 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 					checked: true
 				}
 			]
+		}, 
+		{ 
+			type: 'list',
+			name: 'versionControl',
+			message: 'Which version control service are you using?',
+			choices: [
+				{
+					name: 'BitBucket',
+					value: 'includeBitBucket'
+				},
+				{
+					name: 'Github',
+					value: 'includeGitHub'
+				}
+			]
 		},
 		{
-			name: 'bitBucketName',
-			message: 'What is the name of the BitBucket account?',
+			name: 'accountName',
+			message: 'What is the name of the account?',
 			default: 'signals'
 		},
 		{
 			name: 'repoName',
-			message: 'What is the name of the BitBucket repo?'
+			message: 'What is the name of the repo?'
 		}		
 	];
 
@@ -123,7 +138,14 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 		this.includeModernizr = hasFeature('includeModernizr');
 		this.includeUnderscore = hasFeature('includeUnderscore');
 
-		this.bitBucketName = props.bitBucketName;
+		//Feature Questions
+		var versionControl = props.versionControl;
+		function hasVersionControl(versionOption) { return versionControl.indexOf(versionOption) !== -1; }
+
+		this.includeBitBucket = hasVersionControl('includeBitBucket');
+		this.includeGitHub = hasVersionControl('includeGitHub');
+
+		this.accountName = props.accountName;
 		this.repoName = props.repoName;
 
 		cb();
@@ -196,8 +218,18 @@ AssemblyGenerator.prototype.projectfiles = function projectfiles() {
 // Git setup
 AssemblyGenerator.prototype.initGit = function initGit() {
 	var cb = this.async();
-	var bitBucketAccount = this.bitBucketName;
-	var bitBucketRepo = this.repoName;
+	
+	if (this.includeBitBucket) {
+		var accountName = this.accountName;
+		var repoName = this.repoName;
+		var repoURL = 'https://bitbucket.org/'+ accountName +'/'+ repoName +'.git';
+	}
+
+	if (this.includeGitHub) {
+		var accountName = this.accountName;
+		var repoName = this.repoName;
+		var repoURL = 'https://github.com/'+ accountName +'/'+ repoName +'.git';
+	}
 
 	console.log('Initializing Git');
 
@@ -210,7 +242,7 @@ AssemblyGenerator.prototype.initGit = function initGit() {
 
 			if (err) console.log(err);
 		
-		}).addRemote('origin', 'https://bitbucket.org/'+ bitBucketAccount +'/'+ bitBucketRepo +'.git')
+		}).addRemote('origin', repoURL)
 		.commit('Initial Commit', function(err, d) {
 
 			if (err) console.log(err);	
