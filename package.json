@@ -1,7 +1,7 @@
 {
   "name": "generator-assembly",
-  "version": "0.0.5",
-  "description": "A Yeoman generator to start a simple project.",
+  "version": "0.0.6",
+  "description": "A Yeoman generator to start a simple project. Options for LESS or SASS, Bootstrap or Foundation, RequireJS, Modernizr, Underscore, includes jQuery by default and hooks up dependencies based on selections. Starting Gruntfile that watches and builds your project.",
   "keywords": [
     "yeoman-generator"
   ],
