@@ -7,7 +7,6 @@ module.exports = function(grunt) {
 	// Load grunt tasks automatically
 	require('load-grunt-tasks')(grunt);
 
-	// Time the Grunt tasks
 	require('time-grunt')(grunt);
 
 	// Project configuration.
@@ -58,14 +57,14 @@ module.exports = function(grunt) {
 					sourceMapFilename: app + 'style.css.map',
 					sourceMapURL: '/style.css.map',
 					sourceMapBasepath: 'public',
-					sourceMapRootpath: app
+					sourceMapRootpath: app,
 					paths: app + 'assets/css'
 				},
 				files: {
 					'app/assets/css/styles.css': 'app/assets/less/styles.less'
 				}
 			},
-			production: {
+			dist: {
 				options: {
 					paths: app,
 					sourceMap: false,
@@ -75,6 +74,17 @@ module.exports = function(grunt) {
 				files: {
 					'dist/assets/css/styles.css': 'app/assets/less/styles.less'
 				}
+			}
+		},
+		clean: {
+			dist: {
+				files: [{
+					dot: true,
+					src: [
+						'dist/*',
+						'dist/.git*'
+					]
+				}]
 			}
 		},
 		jshint: {
@@ -155,12 +165,12 @@ module.exports = function(grunt) {
 			},
 		},
 		copy: {
-			build: {
+			dist: {
 				files: [{
 					expand: true,
 					dot: true,
-					cwd: 'app',
-					dest: 'dist',
+					cwd: app,
+					dest: dist,
 					src: [
 						'*.{ico,txt,html}',
 						'.htaccess',
@@ -177,7 +187,7 @@ module.exports = function(grunt) {
 		hashres: {
 			options: {
 				encoding: 'utf8',
-				fileNameFormat: '${name}.${ext}?${hash}',
+				fileNameFormat: <%="'"%><%= '${name}.${ext}?${hash}' %><%="'"%>,
 				renameFiles: false
 			},
 			css: {
@@ -220,8 +230,6 @@ module.exports = function(grunt) {
 		'clean:dist',
 		'concurrent:build1',
 		'concurrent:build2',
-		'imagemin:uploads',
-		'svgmin:uploads',
 		'hashres'
 	]);
 
