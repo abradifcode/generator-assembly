@@ -37,42 +37,8 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 			name: 'projectName',
 			message: 'What is the name of this project?',
 			validate: requiredValidate
-		}, 
-		{ 
-			type: 'list',
-			name: 'preprocessor',
-			message: 'Which CSS Preprocessor would you like?',
-			choices: [
-				{
-					name: 'LESS',
-					value: 'includeLESS'
-				},
-				{
-					name: 'SASS',
-					value: 'includeSASS'
-				}
-			]
-		}, 
-		{ 
-			type: 'list',
-			name: 'framework',
-			message: 'Which front-end framework would you like?',
-			choices: [
-				{
-					name: 'Bootstrap',
-					value: 'includeBootstrap'
-				},
-				{
-					name: 'Foundation',
-					value: 'includeFoundation'
-				},
-				{
-					name: 'None',
-					value: 'includeNone'
-				}
-			]
 		},
-		{ 
+		{
 			type: 'checkbox',
 			name: 'features',
 			message: 'jQuery is included by default so what more would you like?',
@@ -81,20 +47,20 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 					name: 'RequireJS',
 					value: 'includeRequireJS',
 					checked: true
-				}, 
+				},
 				{
 					name: 'Modernizr',
 					value: 'includeModernizr',
 					checked: true
-				}, 
+				},
 				{
 					name: 'Underscore',
 					value: 'includeUnderscore',
 					checked: true
 				}
 			]
-		}, 
-		{ 
+		},
+		{
 			type: 'list',
 			name: 'versionControl',
 			message: 'Which version control service are you using?',
@@ -112,33 +78,18 @@ AssemblyGenerator.prototype.askFor = function askFor() {
 		{
 			name: 'accountName',
 			message: 'What is the name of the account?',
-			default: 'signals',
+			default: 'assemblydigital',
 			validate: requiredValidate
 		},
 		{
 			name: 'repoName',
 			message: 'What is the name of the repo?',
 			validate: requiredValidate
-		}		
+		}
 	];
 
 	this.prompt(prompts, function (props) {
 		this.projectName = props.projectName;
-
-		//Preprocessor Questions
-		var framework = props.framework;
-		function whichframework(frameworkOptions) { return framework.indexOf(frameworkOptions) !== -1; }
-
-		this.includeBootstrap = whichframework('Bootstrap');
-		this.includeFoundation = whichframework('Foundation');
-		this.includeNone = whichframework('None');
-
-		//Framework Questions
-		var preprocessor = props.preprocessor;
-		function whichPreprocessor(preprocessorOptions) { return preprocessor.indexOf(preprocessorOptions) !== -1; }
-
-		this.includeLESS = whichPreprocessor('LESS');
-		this.includeSASS = whichPreprocessor('SASS');
 
 		//Feature Questions
 		var features = props.features;
@@ -169,23 +120,14 @@ AssemblyGenerator.prototype.app = function app() {
 	this.mkdir('app/assets/fonts');
 	this.mkdir('app/assets/img');
 	this.mkdir('app/assets/js');
-
-	if (this.includeLESS) {		
-		this.mkdir('app/assets/less');
-		this.mkdir('app/assets/less/site');
-	}
-
-	if (this.includeSASS) {		
-		this.mkdir('app/assets/sass');
-		this.mkdir('app/assets/sass/site');
-	}
+	this.mkdir('app/assets/less');
+	this.mkdir('app/assets/less/site');
 
 	this.mkdir('dist');
 
 	this.template('global/Gruntfile.js', 'Gruntfile.js');
 
-	//No CMS Starting files
-	this.template('global/index.html', 'app/index.html');
+	this.template('global/index-template.html', 'app/index-template.html');
 
 	this.copy('global/404.html', 'app/404.html');
 	this.copy('global/robots.txt', 'app/robots.txt');
@@ -193,20 +135,11 @@ AssemblyGenerator.prototype.app = function app() {
 	this.copy('global/apple-touch-icon-precomposed.png', 'app/apple-touch-icon-precomposed.png');
 
 	//Starter LESS Setup
-	if (this.includeLESS) {
-		this.copy('starter-less/_styles.less', 'app/assets/less/styles.less');	
-		this.copy('starter-less/variables.less', 'app/assets/less/site/variables.less');
-		this.copy('starter-less/mixins.less', 'app/assets/less/site/mixins.less');
-		this.copy('starter-less/global.less', 'app/assets/less/site/global.less');
-	}
+	this.copy('starter-less/_styles.less', 'app/assets/less/styles.less');
+	this.copy('starter-less/variables.less', 'app/assets/less/site/variables.less');
+	this.copy('starter-less/mixins.less', 'app/assets/less/site/mixins.less');
+	this.copy('starter-less/global.less', 'app/assets/less/site/global.less');
 
-	//Starter SASS Setup
-	if (this.includeSASS) {
-		this.copy('starter-sass/_styles.scss', 'app/assets/sass/styles.scss');	
-		this.copy('starter-sass/variables.scss', 'app/assets/sass/site/variables.scss');
-		this.copy('starter-sass/mixins.scss', 'app/assets/sass/site/mixins.scss');
-		this.copy('starter-sass/global.scss', 'app/assets/sass/site/global.scss');			
-	}
 
 	this.copy('global/_package.json', 'package.json');
 	this.copy('global/_bower.json', 'bower.json');
@@ -228,7 +161,7 @@ AssemblyGenerator.prototype.projectfiles = function projectfiles() {
 // Git setup
 AssemblyGenerator.prototype.initGit = function initGit() {
 	var cb = this.async();
-	
+
 	if (this.includeBitBucket) {
 		var accountName = this.accountName;
 		var repoName = this.repoName;
@@ -244,23 +177,23 @@ AssemblyGenerator.prototype.initGit = function initGit() {
 	console.log('Initializing Git');
 
 	git.init(function(err) {
-		
+
 		if (err) console.log(err);
 		console.log('Git init complete');
 
 		git.add('--all', function(err) {
 
 			if (err) console.log(err);
-		
+
 		}).addRemote('origin', repoURL)
 		.commit('Initial Commit', function(err, d) {
 
-			if (err) console.log(err);	
+			if (err) console.log(err);
 			console.log('Git add and commit complete: ' + JSON.stringify(d, null, '  '));
-		
+
 		})
 		.push('origin', 'master');
-		
+
 		cb();
 	});
 };

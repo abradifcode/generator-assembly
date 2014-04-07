@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<!--[if IE]>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!--<![endif]-->
+		<title><%= _.capitalize(projectName) %></title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+		<link rel="stylesheet" href="assets/css/styles.css">
+		<% if (includeModernizr) { %>
+		<script src="assets/bower_components/modernizr/modernizr.js"></script>
+		<% } %>
+	</head>
+	<body>
+		<h1>You've started a new project called: <%= _.capitalize(projectName) %></h1>
+
+
+		<!-- @if NODE_ENV == 'DEVELOPMENT' -->
+		<script src='//<%= projectName %>:3000/socket.io/socket.io.js'></script>
+		<script>var ___socket___ = io.connect('http://<%= projectName %>:3000');</script>
+		<script src='//<%= projectName %>:3001/client/browser-sync-client.0.6.2.js'></script>
+		<!-- @endif -->
+
+		<% if (includeRequireJS) { %>
+		<script data-main="assets/js/main" src="assets/bower_components/requirejs/require.js"></script>
+		<% } else { %>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script src="assets/bower_components/jquery/jquery.min.js"><\/script>')</script>
+		<script src="assets/js/app.js"></script>
+		<% } %>
+
+		<!-- @if NODE_ENV == 'PRODUCTION' -->
+		<script>
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-*******-**']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
+		<!-- @endif -->
+
+	</body>
+</html>

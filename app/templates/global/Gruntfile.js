@@ -1,20 +1,25 @@
 'use strict';
 
 module.exports = function(grunt) {
+	var app = 'app/';
+	var dist = 'dist/';
+
+	// Load grunt tasks automatically
+	require('load-grunt-tasks')(grunt);
+
+	// Time the Grunt tasks
+	require('time-grunt')(grunt);
 
 	// Project configuration.
 	grunt.initConfig({
 		watch: {
 			css: {
-				files: [<% if (includeLESS) { %>
-					'app/assets/less/*.less',
-					'app/assets/less/site/*.less'<% } if (includeSASS) { %>
-					'app/assets/sass/*.scss',
-					'app/assets/sass/site/*.scss'<% } %>
+				files: [
+					app + 'assets/less/*.less',
+					app + 'assets/less/site/*.less'
 				],
-				tasks: [<% if (includeLESS) { %>
-					'less:development'<% } if (includeSASS) { %>
-					'sass:development'<% } %>
+				tasks: [
+					'less:development'
 				],
 				options: {
 					livereload: true,
@@ -22,7 +27,7 @@ module.exports = function(grunt) {
 			},
 			js: {
 				files: [
-					'app/assets/js/*.js',
+					app + 'assets/js/*.js',
 					'Gruntfile.js'
 				],
 				tasks: ['jshint'],
@@ -34,20 +39,27 @@ module.exports = function(grunt) {
 		browser_sync: {
 			files: {
 				src : [
-					'app/assets/css/*.css',
-					'app/assets/img/*',
-					'app/assets/js/*.js',
-					'app/*.html'
+					app + 'assets/css/*.css',
+					app + 'assets/img/*',
+					app + 'assets/js/*.js',
+					app + '*.html'
 				],
 			},
 			options: {
-				watchTask: true
+				watchTask: true,
+				host: '<%= projectName %>',
+				port: 8888
 			}
-		},<% if (includeLESS) { %>
+		},
 		less: {
 			development: {
 				options: {
-					paths: 'app/assets/css'
+					sourceMap: true,
+					sourceMapFilename: app + 'style.css.map',
+					sourceMapURL: '/style.css.map',
+					sourceMapBasepath: 'public',
+					sourceMapRootpath: app
+					paths: app + 'assets/css'
 				},
 				files: {
 					'app/assets/css/styles.css': 'app/assets/less/styles.less'
@@ -55,29 +67,16 @@ module.exports = function(grunt) {
 			},
 			production: {
 				options: {
-					paths: 'app/assets/css',
-					cleancss: true
+					paths: app,
+					sourceMap: false,
+					cleancss: true,
+					compress: true
 				},
 				files: {
 					'dist/assets/css/styles.css': 'app/assets/less/styles.less'
 				}
 			}
-		},<% } if (includeSASS) { %>
-		sass: {
-			development: {
-				files: {
-					'app/assets/css/styles.css': 'app/assets/sass/styles.scss'
-				}
-			},
-			production: {
-				options: {
-					style: 'compressed'
-				},
-				files: {
-					'dist/assets/css/styles.css': 'app/assets/sass/styles.scss'
-				}
-			}
-		},<% } %>		
+		},
 		jshint: {
 			options: {
 				jshintrc: '.jshintrc'
@@ -87,13 +86,17 @@ module.exports = function(grunt) {
 		requirejs: {
 			compile: {
 				options: {
-					mainConfigFile: 'app/assets/js/main.js',
+					baseUrl: app + 'assets/js',
+					mainConfigFile: app + '/assets/js/main.js',
+					optimize : 'uglify2',
+					inlineText : true,
+					findNestedDependencies : true,
 					paths: {
 						jquery: 'empty:',
 						underscore: 'empty:',
 						app: 'app'
 					},
-					dir: 'dist/assets/js',
+					dir: dist + '/assets/js',
 					shim: {
 						underscore: {
 							deps: ['jquery'],
@@ -106,6 +109,51 @@ module.exports = function(grunt) {
 				}
 			}
 		},<% } %>
+		imagemin: {
+			dist: {
+				files: [{
+					expand: true,
+					cwd: app + 'assets/images',
+					src: '**/*.{png,jpg,jpeg}',
+					dest: dist + 'assets/images'
+				}],
+				options: {
+					cache: false
+				}
+			}
+		},
+		svgmin: {
+			dist: {
+				files: [{
+					expand: true,
+					cwd: app + 'assets/images',
+					src: '**/*.svg',
+					dest: dist + 'assets/images'
+				}]
+			}
+		},
+		preprocess: {
+			dev: {
+				options: {
+					context: {
+						NODE_ENV: 'DEVELOPMENT'
+					},
+				},
+				files: {
+					'app/index.html': 'app/index-template.html'
+				},
+			},
+			dist: {
+				options: {
+					context: {
+						NODE_ENV: 'PRODUCTION'
+					},
+				},
+				files: {
+					'dist/index.html': 'app/index-template.html'
+				},
+			},
+		},
 		copy: {
 			build: {
 				files: [{
@@ -126,28 +174,62 @@ module.exports = function(grunt) {
 				}]
 			}
 		},
+		hashres: {
+			options: {
+				encoding: 'utf8',
+				fileNameFormat: '${name}.${ext}?${hash}',
+				renameFiles: false
+			},
+			css: {
+				src: [
+					dist + 'styles.css'
+				],
+				dest: dist + '/index.html',
+			}
+		},
+		buildcontrol: {
+			options: {
+				dir: 'dist',
+				commit: true,
+				push: true,
+				message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+			},
+			prod: {
+				options: {
+					<% if (includeBitBucket) { %>
+					remote: 'https://bitbucket.org/<%= accountName %>/<%= repoName %>',
+					<% } if (includeGitHub) { %>
+					remote: 'https://github.com/<%= accountName %>/<%= repoName %>',
+					<% } %>
+					branch: 'master'
+				}
+			}
+		},
+		concurrent: {
+			dev: ['clean:dist', 'preprocess:dev'],
+			build1: ['imagemin:dist', 'copy:dist', 'less:dist'],
+			build2: ['preprocess:dist', 'svgmin:dist']
+		}
 	});
-	// Load the Grunt plugins.
-	<% if (includeLESS) { %>
-	grunt.loadNpmTasks('grunt-contrib-less');<% } if (includeSASS) { %>
-	grunt.loadNpmTasks('grunt-contrib-sass');<% } %>	
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-browser-sync');
-	grunt.loadNpmTasks('grunt-contrib-requirejs');
-	grunt.loadNpmTasks('grunt-contrib-copy');
 
-	// Register the default tasks.
-	grunt.registerTask('default', [
-		'browser_sync', 
+	grunt.registerTask('deploy', [
+		'buildcontrol'
+	]);
+
+	grunt.registerTask('build', [
+		'clean:dist',
+		'concurrent:build1',
+		'concurrent:build2',
+		'imagemin:uploads',
+		'svgmin:uploads',
+		'hashres'
+	]);
+
+	grunt.registerTask('dev', [
+		'concurrent:dev',
+		'browser_sync',
 		'watch'
 	]);
 
-	// Register the build tasks.
-	grunt.registerTask('build', [
-		'requirejs',<% if (includeLESS) { %>
-		'less:production',<% } if (includeSASS) { %>
-		'sass:production',<% } %>	
-		'copy:build'
-	]);
+	grunt.registerTask('default', 'dev');
 };
